@@ -158,10 +158,28 @@ class _MyHomePageState extends State<MyHomePage> {
   void getData(String period) {
     Future<String> future = getIPAddress('$period');
     future.then((result) {
-      Map parseJson = json.decode(result);
-      List list = parseJson['data'];
+      // Map parseJson = json.decode(result);
+      // List list = parseJson['data'];
+
+      List dataList = json.decode(result);
+      List<KLineEntity> list = new List<KLineEntity>();
+
+      for (final item in dataList) {
+        KLineEntity kLineEntity = new KLineEntity.fromJson({
+          'time': item[0],
+          'open': item[1],
+          'high': item[2],
+          'low': item[3],
+          'close': item[4],
+          'vol': item[5],
+          'amount': null,
+          'change': null,
+          'ratio': null
+        });
+        list.add(kLineEntity);
+      }
       datas = list
-          .map((item) => KLineEntity.fromJson(item))
+          // .map((item) => KLineEntity.fromJson(item))
           .toList()
           .reversed
           .toList()
@@ -172,14 +190,16 @@ class _MyHomePageState extends State<MyHomePage> {
     }).catchError((_) {
       showLoading = false;
       setState(() {});
-      print('获取数据失败');
+      print('Failed to get data');
     });
   }
 
   //获取火币数据，需要翻墙
   Future<String> getIPAddress(String period) async {
     var url =
-        'https://api.huobi.br.com/market/history/kline?period=${period ?? '1day'}&size=300&symbol=btcusdt';
+        // 'https://api.huobi.br.com/market/history/kline?period=${period ?? '1day'}&size=300&symbol=btcusdt';
+        'https://emirex.com/api/v2/peatio/public/markets/btcusdt/k-line?period=15&limit=300';
+
     String result;
     var response = await http.get(url);
     if (response.statusCode == 200) {
